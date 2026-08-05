@@ -1,4 +1,4 @@
-#pragma once 
+#pragma once
 
 struct run_config {
     char* command;
