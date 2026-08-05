@@ -1,5 +1,5 @@
 CC = gcc
-SRCS = engine.c
+SRCS = engine.c cli_parser.c run.c exec.c namespaces_configuration.c
 OBJS = $(SRCS:.c=.o)
 
 CFLAGS = -Wall -Wextra -Werror
