@@ -8,36 +8,13 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "logger.h"
 #include "util.h"
 #include "namespaces_configuration.h"
-
-int child_process(void* arg) {
-    struct container_init_data* init_data = (struct container_init_data*) arg;
-
-    struct run_config* config = init_data->config;
-    //TODO: реализовать дальнейшую логику контейнера
-    UNUSED(config);
-
-    int readpipefd = init_data->readpipefd;
-
-    char buf;
-    if (read(readpipefd, &buf, 1) != 1) {
-        goto cleanup;
-    }
-
-    close(readpipefd);
-    free(init_data);
-
-    return 0;
-
-cleanup:
-    if (readpipefd >= 0) close(readpipefd);
-    if (init_data != NULL) free(init_data);
-    return -1;
-}
+#include "child.h"
 
 static int sync_pipe_create(int pipefd[2]) {
-    LOG_ERROR_AND_CLEANUP(pipe(pipefd), -1);
+    LOG_SYSERR_AND_CLEANUP(pipe(pipefd), -1);
     return 0;
 
 cleanup:
@@ -48,13 +25,13 @@ static int create_process_and_isolate_namespaces(int pipereadfd, struct run_conf
     void* child_stack = NULL;
     struct container_init_data* container_init_data = NULL;
 
-    LOG_ERROR_AND_CLEANUP(child_stack = mmap(NULL, CHILD_STACK_SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0), MAP_FAILED);
+    LOG_SYSERR_AND_CLEANUP(child_stack = mmap(NULL, CHILD_STACK_SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0), MAP_FAILED);
 
-    LOG_ERROR_AND_CLEANUP(container_init_data = calloc(1, sizeof(struct container_init_data)), NULL);
+    LOG_SYSERR_AND_CLEANUP(container_init_data = calloc(1, sizeof(struct container_init_data)), NULL);
     container_init_data->readpipefd = pipereadfd;
     container_init_data->config = config;
 
-    LOG_ERROR_AND_CLEANUP(*container_pid = clone(child_process, (char*)child_stack + CHILD_STACK_SIZE, CLONE_CONTAINER_FLAGS, container_init_data), -1);
+    LOG_SYSERR_AND_CLEANUP(*container_pid = clone(child_process, (char*)child_stack + CHILD_STACK_SIZE, CLONE_CONTAINER_FLAGS, container_init_data), -1);
 
     free(container_init_data);
     return 0;
@@ -67,8 +44,8 @@ cleanup:
 
 int process_map_setting_in_file(char* path_to_file, char* setting_value) {
     int proc_fd = -1;
-    LOG_ERROR_AND_CLEANUP(proc_fd = open(path_to_file, O_WRONLY), -1);
-    LOG_ERROR_AND_CLEANUP(write(proc_fd, setting_value, strlen(setting_value)), -1);
+    LOG_SYSERR_AND_CLEANUP(proc_fd = open(path_to_file, O_WRONLY), -1);
+    LOG_SYSERR_AND_CLEANUP(write(proc_fd, setting_value, strlen(setting_value)), -1);
     close(proc_fd);
     
     return 0;
