@@ -3,13 +3,16 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "config.h"
 #include "logger.h"
 #include "util.h"
 #include "child.h"
+#include "overlay_configuration.h"
 
 int child_process(void* arg) {
     struct container_init_data* init_data = (struct container_init_data*) arg;
     struct run_config* config = init_data->config;
+    pid_t container_pid = init_data->container_pid;
     UNUSED(config);
 
     int readpipefd = init_data->readpipefd;
@@ -20,6 +23,9 @@ int child_process(void* arg) {
     LOG_SYSERR_AND_CLEANUP(close(readpipefd), -1);
 
     free(init_data);
+    init_data = NULL;
+
+    IF_CLEANUP(process_overlayfs_creation_and_hostname_set(container_pid, config), -1);
 
     return 0;
 

@@ -2,7 +2,7 @@
 #include <fcntl.h>
 #include <sys/wait.h>
 
-#include "cli_parser.h"
+#include "config.h"
 #include "logger.h"
 #include "run.h"
 #include "util.h"

@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "config.h"
 #include "cli_parser.h"
 
 static int parse_run(int argc, char* argv[], void** config_out) {

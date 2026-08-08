@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "config.h"
 #include "cli_parser.h"
 #include "exec.h"
 #include "run.h"
