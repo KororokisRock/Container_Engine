@@ -7,8 +7,8 @@
 #include <errno.h>
 
 
+#include "config.h"
 #include "logger.h"
-#include "cli_parser.h"
 #include "util.h"
 #include "cgroups_configuration.h"
 

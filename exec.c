@@ -1,5 +1,5 @@
+#include "config.h"
 #include "util.h"
-#include "cli_parser.h"
 #include "exec.h"
 
 int handle_exec(struct exec_config* config) {
