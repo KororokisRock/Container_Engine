@@ -84,8 +84,7 @@ cleanup:
 }
 
 
-int process_overlayfs_creation_and_hostname_set(pid_t container_pid, struct run_config* config) {
-    struct path_to_containers_dirs* container_paths = calloc(1, sizeof(struct path_to_containers_dirs));
+int process_overlayfs_creation_and_hostname_set(struct path_to_containers_dirs* container_paths, pid_t container_pid, struct run_config* config) {
     container_paths->lower = strdup(config->rootfs_path);
 
     IF_CLEANUP(overlayfs_dirs_creation(container_pid, container_paths), -1);
@@ -101,11 +100,6 @@ int process_overlayfs_creation_and_hostname_set(pid_t container_pid, struct run_
     return 0;
 
 cleanup:
-    if (container_paths->lower != NULL) free(container_paths->lower);
-    if (container_paths->upper != NULL) free(container_paths->upper);
-    if (container_paths->work != NULL) free(container_paths->work);
-    if (container_paths->merge != NULL) free(container_paths->merge);
-    if (container_paths != NULL) free(container_paths);
     return -1;
 }
 
