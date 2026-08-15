@@ -12,7 +12,7 @@
 #include "util.h"
 #include "cgroups_configuration.h"
 
-int get_self_cgroup_value(char** self_cgroup_value) {
+static int get_self_cgroup_value(char** self_cgroup_value) {
     FILE* file = NULL;
     LOG_SYSERR_AND_CLEANUP(file = fopen("/proc/self/cgroup", "r"), NULL);
 
@@ -61,7 +61,7 @@ cleanup:
     return -1;
 }
 
-int create_cgroup(pid_t container_pid, char** cgroup_path) {
+static int create_cgroup(pid_t container_pid, char** cgroup_path) {
     IF_CLEANUP(get_cgroup_path(container_pid, cgroup_path), -1);
     
     int mkdir_status;
@@ -78,7 +78,7 @@ cleanup:
     return -1;
 }
 
-int set_setting_in_cgroup(char* setting_path, char* setting_value) {
+static int set_setting_in_cgroup(char* setting_path, char* setting_value) {
     int setting_fd = open(setting_path, O_WRONLY);
     if (setting_fd < 0) {
         if (errno == ENOENT) return 0;
@@ -103,7 +103,7 @@ cleanup:
     return -1;
 }
 
-int set_limits_in_cgroup(char* cgroup_path, struct run_config* config) {
+static int set_limits_in_cgroup(char* cgroup_path, struct run_config* config) {
     char setting_path[512];
     
     if (config->memory_limit != NULL) {
@@ -127,7 +127,7 @@ cleanup:
     return -1;
 }
 
-int set_process_in_cgroup(pid_t process_pid, char* cgroup_path) {
+static int set_process_in_cgroup(pid_t process_pid, char* cgroup_path) {
     char cgroup_procs[200];
     char setting_path[512];
 

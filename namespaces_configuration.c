@@ -31,7 +31,6 @@ static int create_process_and_isolate_namespaces(int pipereadfd, struct run_conf
     LOG_SYSERR_AND_CLEANUP(container_init_data = calloc(1, sizeof(struct container_init_data)), NULL);
     container_init_data->readpipefd = pipereadfd;
     container_init_data->config = config;
-    container_init_data->container_pid = getpid();
 
     LOG_SYSERR_AND_CLEANUP(*container_pid = clone(child_process, (char*)child_stack + CHILD_STACK_SIZE, CLONE_CONTAINER_FLAGS, container_init_data), -1);
 
