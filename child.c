@@ -16,13 +16,13 @@
 int child_process(void* arg) {
     struct container_init_data* init_data = (struct container_init_data*) arg;
     struct run_config* config = init_data->config;
-    pid_t container_pid = init_data->container_pid;
     UNUSED(config);
 
     int readpipefd = init_data->readpipefd;
-    char buf;
+    pid_t container_pid;
 
-    IF_CLEANUP(read(readpipefd, &buf, 1), -1);
+    IF_CLEANUP(read(readpipefd, &container_pid, sizeof(pid_t)), -1);
+
     LOG_SYSERR_AND_CLEANUP(unshare(CLONE_NEWCGROUP), -1);
     LOG_SYSERR_AND_CLEANUP(close(readpipefd), -1);
 
