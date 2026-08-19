@@ -19,7 +19,9 @@ int child_process(void* arg) {
     UNUSED(config);
 
     int readpipefd = init_data->readpipefd;
-    pid_t container_pid;
+    pid_t container_pid = -1;
+
+    struct path_to_containers_dirs* container_paths = NULL;
 
     IF_CLEANUP(read(readpipefd, &container_pid, sizeof(pid_t)), -1);
 
@@ -29,7 +31,7 @@ int child_process(void* arg) {
     free(init_data);
     init_data = NULL;
 
-    struct path_to_containers_dirs* container_paths = calloc(1, sizeof(struct path_to_containers_dirs));
+    container_paths = calloc(1, sizeof(struct path_to_containers_dirs));
     IF_CLEANUP(process_overlayfs_creation_and_hostname_set(container_paths, container_pid, config), -1);
 
     LOG_SYSERR_AND_CLEANUP(chdir(container_paths->merge), -1);

@@ -23,3 +23,10 @@
         goto cleanup; \
     } \
 } while (0)
+
+#define LOG_SYSWARN(FUNC, COMP) do { \
+    if ((FUNC) == (COMP)) { \
+        fprintf(stderr, COLOR_WARN "[SYSWARN] " COLOR_RESET "[%s:%d] ", __FILE__, __LINE__); \
+        perror(#FUNC); \
+    } \
+} while (0)
