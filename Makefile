@@ -1,15 +1,27 @@
 CC = gcc
-SRCS = engine.c cli_parser.c run.c exec.c namespaces_configuration.c child.c cgroups_configuration.c overlay_configuration.c container_cleanup.c
+
+INCLUDES = -Isrc/engine -Isrc/util
+
+SRCS = src/engine/main.c \
+       src/engine/cli_parser.c \
+       src/engine/run.c \
+       src/engine/exec.c \
+       src/engine/namespaces_configuration.c \
+       src/engine/child.c \
+       src/engine/cgroups_configuration.c \
+       src/engine/overlay_configuration.c \
+       src/engine/container_cleanup.c
+
 OBJS = $(SRCS:.c=.o)
 
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror $(INCLUDES)
 
 ifeq ($(BUILD_MODE),test)
 	CFLAGS += -g -fsanitize=address -fsanitize=undefined
-	TARGET = test
+	TARGET = engine_test
 else
 	CFLAGS += -O2
-	TARGET = prod
+	TARGET = engine_prod
 endif
 
 all: $(TARGET)
@@ -21,6 +33,6 @@ $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJS) test prod
+	rm -f $(OBJS) engine_test engine_prod
 
 .PHONY: all clean
