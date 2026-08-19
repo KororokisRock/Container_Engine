@@ -42,9 +42,9 @@ int get_cgroup_path(pid_t container_pid, char** cgroup_path) {
     
     int subtree_fd = open(subtree_path, O_WRONLY);
     if (subtree_fd >= 0) {
-        UNUSED(write(subtree_fd, "+memory", 7));
-        UNUSED(write(subtree_fd, "+pids", 5));
-        UNUSED(write(subtree_fd, "+cpu", 4));
+        LOG_SYSWARN(write(subtree_fd, "+memory", 7), -1);
+        LOG_SYSWARN(write(subtree_fd, "+pids", 5), -1);
+        LOG_SYSWARN(write(subtree_fd, "+cpu", 4), -1);
         LOG_SYSERR_AND_CLEANUP(close(subtree_fd), -1);
     }
 
