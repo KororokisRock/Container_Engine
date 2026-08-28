@@ -10,11 +10,13 @@ SRCS = src/engine/main.c \
        src/engine/child.c \
        src/engine/cgroups_configuration.c \
        src/engine/overlay_configuration.c \
-       src/engine/container_cleanup.c
+       src/engine/container_cleanup.c \
+       src/engine/network_configuration.c
 
 OBJS = $(SRCS:.c=.o)
 
 CFLAGS = -Wall -Wextra -Werror $(INCLUDES)
+LDLIBS = -lmnl
 
 ifeq ($(BUILD_MODE),test)
 	CFLAGS += -g -fsanitize=address -fsanitize=undefined
@@ -27,7 +29,7 @@ endif
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) $^ -o $@
+	$(CC) $(CFLAGS) $^ -o $@ $(LDLIBS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@

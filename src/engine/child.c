@@ -12,6 +12,7 @@
 #include "util.h"
 #include "child.h"
 #include "overlay_configuration.h"
+#include "network_configuration.h"
 
 int child_process(void* arg) {
     struct container_init_data* init_data = (struct container_init_data*) arg;
@@ -30,6 +31,11 @@ int child_process(void* arg) {
 
     free(init_data);
     init_data = NULL;
+
+    IF_CLEANUP(netlink_link_set_up("lo"), -1);
+    IF_CLEANUP(netlink_link_set_up("eth0"), -1);
+    IF_CLEANUP(netlink_add_ip("eth0", "172.17.0.2", 24), -1);
+    IF_CLEANUP(netlink_add_default_route("eth0", "172.17.0.1"), -1);
 
     container_paths = calloc(1, sizeof(struct path_to_containers_dirs));
     IF_CLEANUP(process_overlayfs_creation_and_hostname_set(container_paths, container_pid, config), -1);
