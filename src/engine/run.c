@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/wait.h>
+#include <stdlib.h>
 
 #include "config.h"
 #include "logger.h"
@@ -9,6 +10,7 @@
 #include "namespaces_configuration.h"
 #include "cgroups_configuration.h"
 #include "container_cleanup.h"
+#include "network_configuration.h"
 
 int handle_run(struct run_config* config) {
     int syncpipefd[2] = {-1, -1};
@@ -16,6 +18,11 @@ int handle_run(struct run_config* config) {
     IF_CLEANUP(process_container_creation_and_namespaces_isolation(config, syncpipefd, &container_pid), -1);
 
     IF_CLEANUP(process_cgroup_creation_and_setting_limits(container_pid, config), -1);
+
+    IF_CLEANUP(setup_network_namespaces("veth-host", "eth0", container_pid), -1);
+
+    IF_CLEANUP(netlink_link_set_master("veth-host", "docker0"), -1);
+    IF_CLEANUP(netlink_link_set_up("veth-host"), -1);
 
     LOG_SYSERR_AND_CLEANUP(write(syncpipefd[1], &container_pid, sizeof(pid_t)), -1);
 
